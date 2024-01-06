@@ -1,0 +1,3 @@
+Sequentially:
+User goes to page: GET URL <- Server sends HTML
+User presses button: POST to URL with input <- Server function activated and re-render updated version
