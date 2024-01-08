@@ -1,5 +1,3 @@
-import React from 'react'
-
 const Total = (props) => {
 
     var total = 0;
@@ -8,7 +6,7 @@ const Total = (props) => {
     
     return(
         <>
-            <p>Total number of exercises: {total}</p>            
+            <p style={{fontWeight: "bold"}}>Total number of exercises: {total}</p>            
         </>
     );
 }
