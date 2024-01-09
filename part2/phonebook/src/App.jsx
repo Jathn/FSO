@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { getAll } from './utils/crud'
 import Header from './components/Header'
 import PhoneBook from './components/PhoneBook'
 
@@ -11,14 +12,14 @@ const App = () => {
   useEffect(() => {
     console.log('effect')
   
-    const eventHandler = response => {
+    const eventHandler = data => {
       console.log('promise fulfilled')
-      setPersons(response.data)
-      setViewedPersons(response.data)
+      setPersons(data)
+      setViewedPersons(data)
     }
   
-    const promise = axios.get('http://localhost:3001/persons')
-    promise.then(eventHandler)
+    getAll()
+      .then(eventHandler)
   }, [])
 
   const onFilterChange = (value) => {
