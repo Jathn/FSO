@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { create, remove, getAll } from '../utils/crud'
+import { create, remove, getAll, update } from '../utils/crud'
+
+import Notice from './Notice'
 
 const PhoneBook = (props) => {
     const persons = props.persons
     const [newPerson, setNewPerson] = useState({name: '', number: '', id: -1})
+    const [addMessage, setAddMessage] = useState(`Added ${newPerson.name}`)
+    const [viewNotice, setViewNotice] = useState(false)
+
+    const noticeComponent = <Notice message={addMessage} />
+
     const onFilterChange = (event) => {
         props.onFilterChange(event.target.value)
     }
@@ -19,6 +25,10 @@ const PhoneBook = (props) => {
         };
         eventHandler();
     }, [persons])
+    
+    useEffect(() => {
+        setAddMessage(`Added ${newPerson.name}`)
+    }, [newPerson])
 
     const handleNameChange = (event) => {
         setNewPerson({...newPerson, name: event.target.value})
@@ -27,9 +37,22 @@ const PhoneBook = (props) => {
         setNewPerson({...newPerson, number: event.target.value.toString()})
     }
 
-    const addNewPerson = () => {
-        console.log("Adding ", newPerson.name, newPerson.id)
-        create(newPerson).then((response) => console.log(`Status for adding , ${newPerson.name} (id: ${newPerson.id}) was ${response.status}`))
+    const addNewPerson = (event) => {
+        event.preventDefault()
+        props.addPerson(newPerson)
+        const currentValue = persons.find(person => person.name === newPerson.name);
+
+        if (!currentValue) {
+            console.log("Adding ", newPerson.name, newPerson.id)
+            setViewNotice(true)
+            setTimeout(() => setViewNotice(false), 3000)
+            create(newPerson).then((response) => console.log(`Status for adding , ${newPerson.name} (id: ${newPerson.id}) was ${response.status}`))
+        } else {
+            if (window.confirm(`${currentValue.name} already exists, update number to: ${newPerson.number} ?`)) {
+                const updatedPerson = { ...currentValue, number: newPerson.number };
+                update(currentValue.id, updatedPerson)
+            }
+        }
     }
 
     const deletePerson = (event) => {
@@ -43,6 +66,7 @@ const PhoneBook = (props) => {
 
     return (
       <>
+        {viewNotice ? noticeComponent : null}
         <h2>Filter</h2>
         <form><label>Filter shown with: </label><input placeholder='this phrase' onChange={onFilterChange}></input></form>
         <h2>Add person:</h2>

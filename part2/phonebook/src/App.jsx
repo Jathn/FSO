@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import { getAll } from './utils/crud'
 import Header from './components/Header'
 import PhoneBook from './components/PhoneBook'
@@ -34,6 +33,7 @@ const App = () => {
     newPersons.push(value)
     console.log(newPersons)
     setPersons(newPersons)
+    setViewedPersons(newPersons)
   }
 
   return (
