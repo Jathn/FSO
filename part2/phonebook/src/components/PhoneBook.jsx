@@ -5,7 +5,7 @@ import Notice from './Notice'
 
 const PhoneBook = (props) => {
     const persons = props.persons
-    const [newPerson, setNewPerson] = useState({name: '', number: '', id: -1})
+    const [newPerson, setNewPerson] = useState({name: '', number: ''})
     const [addMessage, setAddMessage] = useState(`Added ${newPerson.name}`)
     const [viewNotice, setViewNotice] = useState(false)
 
@@ -19,8 +19,7 @@ const PhoneBook = (props) => {
         const eventHandler = () => {
             getAll()
                 .then(data => {
-                    const id = data.length + 1;
-                    setNewPerson(prevPerson => ({ name: prevPerson.name, number: prevPerson.number, id: id }));
+                    setNewPerson(prevPerson => ({ name: prevPerson.name, number: prevPerson.number}));
                 })
         };
         eventHandler();
