@@ -3,6 +3,21 @@ const totalLikes = (blogs) => {
   
 }
 
+initialBlogs = [
+  {
+    title: 'test',
+    author: 'apptester',
+    url: 'www.testiesdonttrythis.com',
+    likes: 0,
+  },
+  {
+    title: 'test2',
+    author: 'apptester2',
+    url: 'www.testiesdonttrythis2.com',
+    likes: 1,
+  }
+]
+
 const favoriteBlog = (blogs) => {
   return blogs.reduce((prev, current) => (prev.likes > current.likes) ? prev : current);
 }
