@@ -1,20 +1,74 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt')
 const supertest = require('supertest');
 const app = require('../app.js');
 const blog = require('../models/blog.js');
 const helper = require('../utils/list_helper.js');
 const api = supertest(app);
+const User = require('../models/user')
 
 describe('Blog API', () => {
     beforeAll(async () => {
+        await blog.deleteMany({});
         await blog.insertMany(helper.initialBlogs);
+
+        await User.deleteMany({});
+
+        const passwordHash = await bcrypt.hash('sekret', 10);
+        const user = new User({ username: 'root', passwordHash });
+
+        await user.save();
     });
+
+    describe('User handling', () => {
+        test('creation succeeds with a fresh username', async () => {
+            const usersAtStart = await helper.usersInDb();
+
+            const newUser = {
+                username: 'mluukkai',
+                name: 'Matti Luukkainen',
+                password: 'salainen',
+            };
+
+            await api
+                .post('/api/users')
+                .send(newUser)
+                .expect(201)
+                .expect('Content-Type', /application\/json/);
+
+            const usersAtEnd = await helper.usersInDb();
+            expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
+
+            const usernames = usersAtEnd.map(u => u.username);
+            expect(usernames).toContain(newUser.username);
+        });
+
+        test('creation fails with proper statuscode and message if username or password is too short', async () => {
+            const usersAtStart = await helper.usersInDb();
+            
+            const newUser = {
+                username: 'ro',
+                name: 'Superuser',
+                password: 'sa',
+            };
+
+            const result = await api
+                .post('/api/users')
+                .send(newUser)
+                .expect(400)
+                .expect('Content-Type', /application\/json/);
+
+            const usersAtEnd = await helper.usersInDb();
+            expect(usersAtEnd).toHaveLength(usersAtStart.length);
+        });
+    }, 10000);
 
     afterAll(async () => {
         await mongoose.connection.close();
     });
 
-    describe('Get Request Testing', () => {    test('blogs are returned as json', async () => {
+    describe('Get Request Testing', () => {
+        test('blogs are returned as json', async () => {
             await api
                 .get('/api/blogs')
                 .expect(200)
@@ -24,7 +78,8 @@ describe('Blog API', () => {
         test('id is defined', async () => {
             const response = await api.get('/api/blogs');
             expect(response.body[0].id).toBeDefined();
-        });})
+        });
+    });
 
     describe('Post Request Testing', () => {
         test('a valid blog can be added', async () => {
@@ -110,4 +165,4 @@ describe('Blog API', () => {
             expect(updatedBlogs.body).not.toContainEqual(blogToDelete);
         });
     });
-}, 15000);
+}, 20000);

@@ -1,7 +1,4 @@
-const totalLikes = (blogs) => {
-  return blogs.length === 1 ? blogs[0].likes : blogs.length;
-  
-}
+const User = require('../models/user')
 
 initialBlogs = [
   {
@@ -17,6 +14,11 @@ initialBlogs = [
     likes: 1,
   }
 ]
+
+const totalLikes = (blogs) => {
+  return blogs.length === 1 ? blogs[0].likes : blogs.length;
+  
+}
 
 const favoriteBlog = (blogs) => {
   return blogs.reduce((prev, current) => (prev.likes > current.likes) ? prev : current);
@@ -56,9 +58,15 @@ const mostLikes = (blogs) => {
   return authorWithMostLikes.author;
 }
 
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(u => u.toJSON())
+}
+
 module.exports = {
   totalLikes,
   favoriteBlog,
   mostBlogs,
-  mostLikes
+  mostLikes,
+  usersInDb,
 }
