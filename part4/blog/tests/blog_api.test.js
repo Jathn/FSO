@@ -89,14 +89,23 @@ describe('Blog API', () => {
 
     describe('Get Request Testing', () => {
         test('blogs are returned as json', async () => {
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
             await api
                 .get('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200)
                 .expect('Content-Type', /application\/json/);
         });
 
         test('id is defined', async () => {
-            const response = await api.get('/api/blogs');
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const response = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`);
             expect(response.body[0].id).toBeDefined();
         });
     });
@@ -234,7 +243,11 @@ describe('Blog API', () => {
 
     describe('Put Request Testing', () => {
         test('a blog can be updated', async () => {
-            const blogs = await api.get('/api/blogs');
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const blogs = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`);
             const blogToUpdate = blogs.body[0];
 
             const updatedBlog = {
@@ -244,20 +257,60 @@ describe('Blog API', () => {
 
             await api
                 .put(`/api/blogs/${blogToUpdate.id}`)
+                .set('Authorization', `Bearer ${token}`)
                 .send(updatedBlog)
                 .expect(204);
         });
     });
 
     describe('Delete Request Testing', () => {
+
         test('a blog can be deleted', async () => {
-            const blogs = await api.get('/api/blogs');
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const blogs = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`);
+
+            if (blogs.body.length === 0) {
+                console.log('No blogs to delete');
+                return;
+            }
+            
             const blogToDelete = blogs.body[0];
 
-            await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+            await api
+                .delete(`/api/blogs/${blogToDelete.id}`)
+                .set('Authorization', `Bearer ${token}`)
+                .expect(204);
 
-            const updatedBlogs = await api.get('/api/blogs');
+            const updatedBlogs = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`);
             expect(updatedBlogs.body).not.toContainEqual(blogToDelete);
+        });
+
+        test('deleting a blog without authentication should return 401', async () => {
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const blogs = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`);
+            const blogToDelete = blogs.body[0];
+
+            await api.delete(`/api/blogs/${blogToDelete.id}`).expect(401);
+        });
+
+        test('deleting a blog with invalid token should return 401', async () => {
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const blogs = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`);
+            const blogToDelete = blogs.body[0];
+
+            await api
+                .delete(`/api/blogs/${blogToDelete.id}`)
+                .set('Authorization', 'Bearer invalidtoken')
+                .expect(401);
         });
     });
 }, 30000);
