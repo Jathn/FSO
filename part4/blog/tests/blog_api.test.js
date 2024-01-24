@@ -61,7 +61,27 @@ describe('Blog API', () => {
             const usersAtEnd = await helper.usersInDb();
             expect(usersAtEnd).toHaveLength(usersAtStart.length);
         });
-    }, 10000);
+
+        describe('Login', () => {
+            test('login succeeds with correct credentials', async () => {
+                const response = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .expect(200)
+                    .expect('Content-Type', /application\/json/);
+
+                expect(response.body.token).toBeDefined();
+            });
+
+            test('login fails with incorrect credentials', async () => {
+                await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'wrongpassword' })
+                    .expect(401)
+                    .expect('Content-Type', /application\/json/);
+            });
+        }, 10000);
+    }, 20000);
 
     afterAll(async () => {
         await mongoose.connection.close();
@@ -82,18 +102,72 @@ describe('Blog API', () => {
     });
 
     describe('Post Request Testing', () => {
-        test('a valid blog can be added', async () => {
-            const length = await api.get('/api/blogs').then((res) => res.body.length);
+        describe('Authorization Testing', () => {     
+            test('authorization succeeds with a valid token', async () => {
+                const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+                const user = await User.findOne({ username: 'root' });  
+                
+                const newBlog = {
+                    title: 'test',
+                    author: 'apptester',
+                    url: 'www.testiesdonttrythis.com',
+                    likes: 0,
+                    user: user.id,
+                };
+    
+                await api
+                    .post('/api/blogs')
+                    .set('Authorization', `Bearer ${token}`)
+                    .send(newBlog)
+                    .expect(200)
+                    .expect('Content-Type', /application\/json/);
+            });
+    
+            test('authorization fails with an invalid token', async () => {
+                const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+                const user = await User.findOne({ username: 'root' });  
+                const newBlog = {
+                    title: 'test',
+                    author: 'apptester',
+                    url: 'www.testiesdonttrythis.com',
+                    likes: 0,
+                    user: user.id,
+                };
+    
+                await api
+                    .post('/api/blogs')
+                    .set('Authorization', 'Bearer invalidtoken')
+                    .send(newBlog)
+                    .expect(401)
+                    .expect('Content-Type', /application\/json/);
+            });
+            
+        });
 
+        test('a valid blog can be added', async () => {
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const user = await User.findOne({ username: 'root' });  
+            const length = await api.get('/api/blogs').then((res) => res.body.length);
             const newBlog = {
                 title: 'test',
                 author: 'apptester',
                 url: 'www.testiesdonttrythis.com',
                 likes: 0,
+                user: user.id,
             };
 
             await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(200)
                 .expect('Content-Type', /application\/json/)
@@ -105,14 +179,21 @@ describe('Blog API', () => {
         });
 
         test('likes default to 0', async () => {
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const user = await User.findOne({ username: 'root' });  
             const newBlog = {
                 title: 'test',
                 author: 'apptester',
                 url: 'www.testiesdonttrythis.com',
+                user: user.id,
             };
 
             await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(200)
                 .expect((res) => {
@@ -120,20 +201,34 @@ describe('Blog API', () => {
                 });
         });
 
-        test('blog without title or url is not added', async () => {
+        test('blog without title or url or user is not added', async () => {
+            const token = await api
+                    .post('/api/login')
+                    .send({ username: 'root', password: 'sekret' })
+                    .then((res) => res.body.token);
+            const user = await User.findOne({ username: 'root' });
             const newBlog1 = {
                 url: 'www.testiesdonttrythis.com',
                 author: 'Unkown',
                 likes: 2,
+                user: user.id,
             };
 
             const newBlog2 = {
                 title: 'test',
                 author: 'Unkown2',
+                user: user.id,
             };
+            const newBlog3 = {
+                title: 'test3',
+                author: 'Unkown3',
+                likes: 2,
+                url: 'www.testiesdonttrythis2.com',
+            }
 
-            await api.post('/api/blogs').send(newBlog1).expect(400);
-            await api.post('/api/blogs').send(newBlog2).expect(400);
+            await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog1).expect(400);
+            await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog2).expect(400);
+            await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog3).expect(400);
         });
     });
 
@@ -165,4 +260,4 @@ describe('Blog API', () => {
             expect(updatedBlogs.body).not.toContainEqual(blogToDelete);
         });
     });
-}, 20000);
+}, 30000);
