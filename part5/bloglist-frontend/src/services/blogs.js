@@ -9,7 +9,7 @@ const setToken = newToken => {
 }
 
 const getAll = async () => {
-  console.log('token ' + token)
+  console.log(`token ${token}`)
   const config = {
     headers: { 
       Authorization: `Bearer ${token}` 
@@ -21,7 +21,7 @@ const getAll = async () => {
 
 const get = async (id) => {
   const config = {
-    headers: { Authorization: `${token}` }
+    headers: { Authorization: `Bearer ${token}` }
   };
   const response = await axios.get(`${baseUrl}/${id}`, config);
   return response.data;
@@ -29,7 +29,7 @@ const get = async (id) => {
 
 const create = async (newBlog) => {
   const config = {
-    headers: { Authorization: `${token}` }
+    headers: { Authorization: `Bearer ${token}` }
   };
   const response = await axios.post(baseUrl, newBlog, config);
   return response.data;
@@ -37,9 +37,17 @@ const create = async (newBlog) => {
 
 const remove = async (id) => {
   const config = {
-    headers: { Authorization: `${token}` }
+    headers: { Authorization: `Bearer ${token}` }
   };
   await axios.delete(`${baseUrl}/${id}`, config);
 };
 
-export default { getAll, get, create, remove, setToken };
+const update = async (id, newObject) => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  };
+  const response = await axios.put(`${baseUrl}/${id}`, newObject, config);
+  return response.data;
+}
+
+export default { getAll, get, create, remove, setToken, update };

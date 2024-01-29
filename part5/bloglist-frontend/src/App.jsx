@@ -12,6 +12,7 @@ import LoginForm from './components/LoginForm'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [showAll, setShowAll] = useState(true)
+  const [notification, setNotification] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
@@ -42,8 +43,30 @@ const App = () => {
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
       })
+    setErrorMessage('New blog posted: ' + blogObject.title + ' by ' + blogObject.author)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
   }
 
+  const increaseLikesOf = id => {
+    const blog = blogs.find(n => n.id === id)
+    const changedBlog = { ...blog, likes: blog.likes + 1}
+
+    blogService
+      .update(id, changedBlog)
+      .then(returnedBlog => {
+        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
+      })
+      .catch(error => {
+        setErrorMessage(
+          `Blog '${blog.title}' was already removed from server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      })
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -99,18 +122,22 @@ const App = () => {
 
   const blogForm = () => (
     <Togglable buttonLabel="new blog" ref={blogFormRef} >
-      <BlogForm createBlog={addBlog} />
+      <BlogForm createBlog={addBlog} user={user} />
     </Togglable>
   )
 
   return (
     <div>
       <h2>Blogs</h2>
-
+      <Notification message={notification} />
+      <Notification message={errorMessage} />
       {!user && loginForm()}
       {user && <div>
         <p>{user.name} logged in <button onClick={handleLogout}>Log out</button></p>
         {blogForm()}
+        {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
+        <Blog key={blog.id} blog={blog} increaseLikes={() => increaseLikesOf(blog.id)}/>
+      )}
       </div>
       }
     </div>
