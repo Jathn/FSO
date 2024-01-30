@@ -14,16 +14,16 @@ const App = () => {
   const [showAll, setShowAll] = useState(true)
   const [notification, setNotification] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [loginVisible, setLoginVisible] = useState(false)
-  
+
   useEffect(() => {
     blogService.getAll(user).then(blogs =>
       setBlogs( blogs )
-    )  
-  }, [])
+    )
+  }, [user])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -51,7 +51,7 @@ const App = () => {
 
   const increaseLikesOf = id => {
     const blog = blogs.find(n => n.id === id)
-    const changedBlog = { ...blog, likes: blog.likes + 1}
+    const changedBlog = { ...blog, likes: blog.likes + 1 }
 
     blogService
       .update(id, changedBlog)
@@ -70,7 +70,6 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
     try {
       const user = await loginService.login({
         username, password,
@@ -136,10 +135,11 @@ const App = () => {
         <p>{user.name} logged in <button onClick={handleLogout}>Log out</button></p>
         {blogForm()}
         {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-        <Blog key={blog.id} blog={blog} increaseLikes={() => increaseLikesOf(blog.id)}/>
-      )}
+          <Blog key={blog.id} blog={blog} increaseLikes={() => increaseLikesOf(blog.id)}/>
+        )}
       </div>
       }
+      <Footer />
     </div>
   )
 }
