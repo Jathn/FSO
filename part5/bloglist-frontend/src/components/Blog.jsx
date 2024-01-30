@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import '@testing-library/jest-dom'
 import blogService from '../services/blogs'
 
 const Blog = ({ blog, increaseLikes }) => {
