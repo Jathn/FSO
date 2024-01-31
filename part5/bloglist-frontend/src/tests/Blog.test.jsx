@@ -1,9 +1,8 @@
 import React from 'react'
-import { render, userEvent } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import Blog from '../components/Blog'
 
 describe('Blog component', () => {
-
   test('renders blog title and author', () => {
     const blog = {
       title: 'Test Blog',
@@ -34,14 +33,13 @@ describe('Blog component', () => {
     }
 
     const component = render(<Blog blog={blog} />)
-    const user = userEvent.setup()
     const button = component.getByText('view')
-    user.click(button)
+    fireEvent.click(button)
 
     expect(component.container).toHaveTextContent('Test Blog')
     expect(component.container).toHaveTextContent('Test Author')
     expect(component.container).toHaveTextContent('https://example.com')
-    expect(component.container).toHaveTextContent('likes: 5')
+    expect(component.container).toHaveTextContent('likes 5')
   })
 
   test('clicking the like button calls the increaseLikes function', () => {
@@ -57,13 +55,12 @@ describe('Blog component', () => {
     }
 
     const increaseLikes = jest.fn()
-    const user = userEvent.setup()
     const component = render(<Blog blog={blog} increaseLikes={increaseLikes} />)
     const viewButton = component.getByText('view')
-    user.click(viewButton)
+    fireEvent.click(viewButton)
 
     const likeButton = component.getByText('like')
-    user.click(likeButton)
+    fireEvent.click(likeButton)
 
     expect(increaseLikes).toHaveBeenCalledTimes(1)
   })
@@ -81,15 +78,13 @@ describe('Blog component', () => {
     }
 
     const increaseLikes = jest.fn()
-    const user = userEvent.setup()
-
     const component = render(<Blog blog={blog} increaseLikes={increaseLikes} />)
     const viewButton = component.getByText('view')
-    user.click(viewButton)
+    fireEvent.click(viewButton)
 
     const likeButton = component.getByText('like')
-    user.click(likeButton)
-    user.click(likeButton)
+    fireEvent.click(likeButton)
+    fireEvent.click(likeButton)
 
     expect(increaseLikes).toHaveBeenCalledTimes(2)
   })

@@ -1,21 +1,31 @@
 import React from 'react'
-import { render, userEvent } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import BlogForm from '../components/BlogForm'
 
 describe('BlogForm component', () => {
-  test('<BlogForm /> updates parent state and calls onSubmit', async () => {
+  test('<BlogForm /> updates parent state and calls onSubmit', () => {
     const createBlog = jest.fn()
-    const user = userEvent.setup()
+    const user = { username: 'testuser', name: 'Test User' }
 
-    render(<BlogForm createBlog={createBlog} user={user} />)
+    const { getByLabelText, getByText } = render(<BlogForm createBlog={createBlog} user={user} />)
 
-    const input = screen.getByRole('textbox')
-    const sendButton = screen.getByText('save')
+    const titleInput = getByLabelText('Title:')
+    const authorInput = getByLabelText('Author:')
+    const urlInput = getByLabelText('Url:')
+    const saveButton = getByText('save')
 
-    await user.type(input, 'testing a form...')
-    await user.click(sendButton)
+    fireEvent.change(titleInput, { target: { value: 'Test Title' } })
+    fireEvent.change(authorInput, { target: { value: 'Test Author' } })
+    fireEvent.change(urlInput, { target: { value: 'https://example.com' } })
 
-    expect(createBlog.mock.calls).toHaveLength(1)
-    expect(createBlog.mock.calls[0][0].content).toBe('testing a form...')
+    fireEvent.click(saveButton)
+
+    expect(createBlog).toHaveBeenCalledTimes(1)
+    expect(createBlog).toHaveBeenCalledWith({
+      title: 'Test Title',
+      author: 'Test Author',
+      url: 'https://example.com',
+      user: { username: 'testuser', name: 'Test User' }
+    })
   })
 })
