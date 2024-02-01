@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import '@testing-library/jest-dom'
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, increaseLikes }) => {
+const Blog = ({ blog, increaseLikes, user }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -25,7 +24,7 @@ const Blog = ({ blog, increaseLikes }) => {
       {blog.url}<br />
       likes {blog.likes} <button onClick={() => increaseLikes(blog.id)}>like</button><br />
       {blog.user.name ? blog.user.name : 'No user'}<br />
-      <button onClick={() => blogService.delete(blog.id)}>delete</button>
+      {user === blog.user ? <button onClick={() => blogService.remove(blog.id)}>delete</button>: <p></p>}
     </div>
     )}
   return(
