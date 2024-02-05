@@ -5,7 +5,7 @@ import AnecdoteView from '../components/AnecdoteView'
 
 const Anecdotes = () => {
     const dispatch = useDispatch()
-    const anecdotes = useSelector(state => state)
+    const anecdotes = useSelector(state => state.anecdotes.filter(anecdote => state.filter === '' || anecdote.content.toLowerCase().includes(state.filter.toLowerCase())))
 
     const addAnecdote = (event) => {
         event.preventDefault()
