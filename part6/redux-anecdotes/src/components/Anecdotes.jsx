@@ -1,5 +1,5 @@
 import { notificationTimeout } from '../reducers/notificationReducer'
-import { createAnecdote, voteUpAnecdote } from '../reducers/anecdoteReducer'
+import { createAnecdote, upVote } from '../reducers/anecdoteReducer'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Notification from '../components/Notification'
@@ -15,14 +15,12 @@ const Anecdotes = () => {
         event.preventDefault()
         const content = event.target.anecdote.value
         event.target.anecdote.value = ''
-        const newAnecdote = await anecdoteService.createNew(content)
-        dispatch(createAnecdote(newAnecdote))
+        dispatch(createAnecdote(content))
         dispatch(notificationTimeout(`You created: ${content}`, 5))
     }
     
     const vote = (anecdote) => {
-        dispatch(voteUpAnecdote(anecdote))
-        dispatch(notificationTimeout(`You upvoted a quote!`, 5))
+        dispatch(upVote(anecdote))
     }
     
     return (

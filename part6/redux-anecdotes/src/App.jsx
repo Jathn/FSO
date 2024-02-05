@@ -7,7 +7,7 @@ import Anecdotes from './components/Anecdotes'
 import Footer from './components/Footer'
 
 import anecdoteService from './services/anecdotes'
-import { setAnecdotes } from './reducers/anecdoteReducer'
+import { initializeAnecdotes } from './reducers/anecdoteReducer'
 import { useDispatch } from 'react-redux'
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    anecdoteService.getAll().then(anecdotes => dispatch(setAnecdotes(anecdotes)))
+    dispatch(initializeAnecdotes())
   }, [])
 
   return (
