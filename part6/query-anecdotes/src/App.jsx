@@ -1,4 +1,3 @@
-import { useReducer } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { getAnecdotes, voteAnecdote } from "./services/anecdotes"
@@ -6,6 +5,7 @@ import { getAnecdotes, voteAnecdote } from "./services/anecdotes"
 import AnecdoteForm from './components/AnecdoteForm'
 
 import NotificationContext, { NotificationContextProvider } from './contexts/notificationContext'
+import VoteButton from './components/VoteButton'
 import Notification from './components/Notification'
 
 const App = () => {
@@ -51,7 +51,6 @@ const App = () => {
       <NotificationContextProvider > 
         <Notification />
         <AnecdoteForm />
-      </NotificationContextProvider >
     
       {result.data.map(anecdote =>
         <div key={anecdote.id}>
@@ -60,10 +59,12 @@ const App = () => {
           </div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => handleVote(anecdote)}>vote</button>
+            <VoteButton anecdote={anecdote} voteFunction={handleVote}/>
           </div>
         </div>
       )}
+
+  </NotificationContextProvider >
     </div>
   )
 }
