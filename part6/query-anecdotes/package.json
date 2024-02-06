@@ -8,9 +8,10 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "server": "node server.js"
+    "server": "json-server -p3001 --watch db.json"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.18.1",
     "axios": "^1.4.0",
     "json-server": "^0.17.4",
     "react": "^18.2.0",
