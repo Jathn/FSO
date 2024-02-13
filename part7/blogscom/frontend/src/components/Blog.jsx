@@ -22,9 +22,8 @@ const Blog = ({ blog, increaseLikes, user }) => {
     return (<div>
       {blog.title} {blog.author} <button onClick={() => setView(false)}>hide</button><br />
       {blog.url}<br />
-      likes {blog.likes} <button onClick={increaseLikes(blog)}>like</button><br />
-      {blog.user.name ? blog.user.name : 'No user'}<br />
-      {user === blog.user ? <button onClick={() => blogService.remove(blog.id)}>delete</button>: <p></p>}
+      likes {blog.likes} <button onClick={() => increaseLikes(blog)}>like</button><br />
+      {user.username === blog.user.username ? <button onClick={() => blogService.remove(blog.id)}>delete</button>: <p></p>}
     </div>
     )}
   return(

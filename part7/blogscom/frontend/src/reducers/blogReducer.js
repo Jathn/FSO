@@ -7,15 +7,10 @@ const blogSlice = createSlice({
     initialState: [],
     reducers: {
         voteUpBlog: (state, action) => {
-            const id = action.payload.id
-            const blogToChange = state.find(n => n.id === id)
-            const changedBlog = {
-                ...blogToChange,
-                votes: blogToChange.votes + 1
-            }
+            const updatedBlog = action.payload;
             return state.map(blog =>
-                blog.id !== id ? blog : changedBlog
-            )
+                blog.id !== updatedBlog.id ? blog : updatedBlog
+            );
         },
         appendBlog: (state, action) => {
             state.push(action.payload)
@@ -48,9 +43,13 @@ export const createBlog = (object) => {
 
 export const upVote = (blog) => {
     return async dispatch => {
-        const newBlog = { ...blog, votes: blog.votes + 1 }
-        const updatedBlog = await blogService.update(newBlog)
-        dispatch(voteUpBlog(updatedBlog))
+        try {
+            const newBlog = { ...blog, likes: blog.likes + 1 }
+            const updatedBlog = await blogService.update(newBlog)
+            dispatch(voteUpBlog(updatedBlog))
+        } catch (error) {
+            console.error('Error upvoting blog:', error)
+        }
     }
 }
 
