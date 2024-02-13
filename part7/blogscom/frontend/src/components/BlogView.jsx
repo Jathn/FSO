@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Blog from "./Blog";
 
 import { upVote } from "../reducers/blogReducer";
+import { notificationTimeout } from "../reducers/notificationReducer";
 
 const BlogView = ({user}) => {
     const blogs = useSelector((state) => state.blogs);
@@ -10,6 +11,7 @@ const BlogView = ({user}) => {
     
     const like = (blog) => {
         dispatch(upVote(blog));
+        dispatch(notificationTimeout(`You liked ${blog.title}`, 5));
     }
 
     return (

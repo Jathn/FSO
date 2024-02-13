@@ -10,17 +10,18 @@ const LoginForm = ({ onLogin }) => {
   }
 
   return (
-    <div>
+    <div class="content">
       <h2>Log in to application</h2>
 
       <form onSubmit={handleSubmit}>
         <div>
-          username
+          <p className="">username
           <input
             value={username}
             onChange={({ target }) => setUsername(target.value)}
             id='username'
           />
+          </p>
         </div>
         <div>
           password
